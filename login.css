@@ -1,0 +1,788 @@
+/* =========================================
+   LIWI-KA ADMIN LOGIN
+   ========================================= */
+
+@font-face {
+    font-family: "Font";
+    src: url("OrangeAvenue.otf") format("opentype");
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: "Font1";
+    src: url("Outfit-Regular.ttf") format("truetype");
+    font-weight: 400;
+}
+
+
+/* RESET */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+}
+
+
+body {
+    background:
+        radial-gradient(
+            circle at 50% 45%,
+            rgba(107, 67, 23, 0.18),
+            transparent 38%
+        ),
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(183, 137, 51, 0.08),
+            transparent 28%
+        ),
+        #050403;
+
+    color: #fff;
+
+    font-family: "Font1", sans-serif;
+
+    overflow-x: hidden;
+}
+
+
+/* =========================================
+   MAIN PAGE
+   ========================================= */
+
+.login-page {
+
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 45px 20px 30px;
+
+    position: relative;
+    overflow: hidden;
+}
+
+
+/* =========================================
+   BACKGROUND GOLD ORBS
+   ========================================= */
+
+.gold-orb {
+
+    position: absolute;
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    filter: blur(80px);
+
+    opacity: 0.25;
+}
+
+
+.orb-one {
+
+    width: 350px;
+    height: 350px;
+
+    background: rgba(172, 118, 39, 0.22);
+
+    top: -160px;
+    left: -120px;
+
+    animation: orbFloat 9s ease-in-out infinite alternate;
+}
+
+
+.orb-two {
+
+    width: 300px;
+    height: 300px;
+
+    background: rgba(126, 77, 20, 0.20);
+
+    right: -120px;
+    bottom: -130px;
+
+    animation: orbFloat 11s ease-in-out infinite alternate-reverse;
+}
+
+
+@keyframes orbFloat {
+
+    from {
+        transform: translate(0, 0);
+    }
+
+    to {
+        transform: translate(35px, 25px);
+    }
+}
+
+
+/* =========================================
+   LOGO
+   ========================================= */
+
+.login-logo {
+
+    width: 95px;
+
+    display: block;
+
+    margin-bottom: 25px;
+
+    position: relative;
+
+    z-index: 5;
+
+    transition: transform 0.4s ease;
+}
+
+
+.login-logo img {
+
+    width: 100%;
+
+    height: auto;
+
+    display: block;
+}
+
+
+.login-logo:hover {
+
+    transform: scale(1.04);
+}
+
+
+/* =========================================
+   LOGIN CARD
+   ========================================= */
+
+.login-card {
+
+    width: min(455px, 100%);
+
+    padding: 46px 45px 35px;
+
+    position: relative;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(31, 23, 16, 0.94),
+            rgba(10, 9, 7, 0.97)
+        );
+
+    border: 1px solid rgba(211, 169, 86, 0.25);
+
+    box-shadow:
+        0 30px 90px rgba(0, 0, 0, 0.65),
+        0 0 45px rgba(155, 101, 28, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+    backdrop-filter: blur(18px);
+
+    animation: cardAppear 0.8s ease both;
+}
+
+
+@keyframes cardAppear {
+
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+/* Gold top line */
+
+.card-top-line {
+
+    position: absolute;
+
+    top: 0;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: 95px;
+    height: 1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #f2d27c,
+            #a77a28,
+            transparent
+        );
+
+    box-shadow:
+        0 0 12px rgba(221, 178, 79, 0.55);
+}
+
+
+/* =========================================
+   HEADING
+   ========================================= */
+
+.login-heading {
+
+    text-align: center;
+
+    margin-bottom: 35px;
+}
+
+
+.eyebrow {
+
+    font-family: "Font1", sans-serif;
+
+    font-size: 10px;
+
+    letter-spacing: 3px;
+
+    color: #c8a65a;
+
+    margin-bottom: 14px;
+
+    text-transform: uppercase;
+}
+
+
+.login-heading h1 {
+
+    font-family: "Font", Georgia, serif;
+
+    font-size: 43px;
+
+    font-weight: 400;
+
+    letter-spacing: 1px;
+
+    color: #f5f0e6;
+
+    margin-bottom: 12px;
+}
+
+
+.login-subtitle {
+
+    font-size: 12px;
+
+    letter-spacing: 0.7px;
+
+    color: rgba(255, 255, 255, 0.48);
+
+    line-height: 1.7;
+}
+
+
+/* =========================================
+   FORM
+   ========================================= */
+
+.login-form {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 23px;
+}
+
+
+.input-group {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 9px;
+}
+
+
+.input-group label {
+
+    font-size: 9px;
+
+    letter-spacing: 2px;
+
+    color: rgba(255, 255, 255, 0.62);
+
+    font-weight: 400;
+}
+
+
+/* =========================================
+   INPUT
+   ========================================= */
+
+.input-wrapper {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+}
+
+
+.input-icon {
+
+    position: absolute;
+
+    left: 16px;
+
+    color: #9c7734;
+
+    font-size: 13px;
+
+    pointer-events: none;
+
+    transition:
+        color 0.3s ease,
+        text-shadow 0.3s ease;
+}
+
+
+.input-wrapper input {
+
+    width: 100%;
+
+    height: 53px;
+
+    padding: 0 17px 0 43px;
+
+    border: 1px solid rgba(255, 255, 255, 0.10);
+
+    outline: none;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.035),
+            rgba(255, 255, 255, 0.018)
+        );
+
+    color: #f7f1e5;
+
+    font-family: "Font1", sans-serif;
+
+    font-size: 13px;
+
+    letter-spacing: 0.4px;
+
+    transition:
+        border 0.35s ease,
+        box-shadow 0.35s ease,
+        background 0.35s ease;
+}
+
+
+.input-wrapper input::placeholder {
+
+    color: rgba(255, 255, 255, 0.27);
+}
+
+
+/* GOLD FOCUS EFFECT */
+
+.input-wrapper input:focus {
+
+    border-color: rgba(211, 169, 86, 0.70);
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(117, 77, 25, 0.13),
+            rgba(255, 255, 255, 0.025)
+        );
+
+    box-shadow:
+        0 0 0 1px rgba(201, 157, 65, 0.08),
+        0 0 22px rgba(176, 123, 35, 0.14),
+        inset 0 0 15px rgba(169, 115, 31, 0.04);
+}
+
+
+.input-wrapper:focus-within .input-icon {
+
+    color: #e1bd63;
+
+    text-shadow:
+        0 0 10px rgba(220, 177, 74, 0.65);
+}
+
+
+/* =========================================
+   PASSWORD
+   ========================================= */
+
+.password-wrapper input {
+
+    padding-right: 72px;
+}
+
+
+.view-password {
+
+    position: absolute;
+
+    right: 13px;
+
+    background: transparent;
+
+    border: none;
+
+    color: #aa8642;
+
+    font-family: "Font1", sans-serif;
+
+    font-size: 8px;
+
+    letter-spacing: 1.5px;
+
+    cursor: pointer;
+
+    padding: 8px;
+
+    transition:
+        color 0.25s ease,
+        text-shadow 0.25s ease;
+}
+
+
+.view-password:hover {
+
+    color: #f0cc73;
+
+    text-shadow:
+        0 0 10px rgba(224, 178, 70, 0.6);
+}
+
+
+/* =========================================
+   LOGIN OPTIONS
+   ========================================= */
+
+.login-options {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-top: -4px;
+}
+
+
+.remember-me {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: rgba(255, 255, 255, 0.43);
+
+    font-size: 10px;
+
+    cursor: pointer;
+}
+
+
+.remember-me input {
+
+    display: none;
+}
+
+
+.custom-checkbox {
+
+    width: 12px;
+    height: 12px;
+
+    border: 1px solid rgba(206, 164, 78, 0.4);
+
+    display: inline-block;
+
+    position: relative;
+
+    transition: 0.25s ease;
+}
+
+
+.remember-me input:checked + .custom-checkbox {
+
+    background: #b99142;
+
+    border-color: #d9b866;
+
+    box-shadow:
+        0 0 10px rgba(210, 166, 70, 0.35);
+}
+
+
+.remember-me input:checked + .custom-checkbox::after {
+
+    content: "✓";
+
+    position: absolute;
+
+    color: #17120a;
+
+    font-size: 9px;
+
+    left: 2px;
+
+    top: -1px;
+}
+
+
+.forgot-password {
+
+    color: #a98646;
+
+    font-size: 10px;
+
+    text-decoration: none;
+
+    transition: 0.25s ease;
+}
+
+
+.forgot-password:hover {
+
+    color: #e2c26f;
+
+    text-shadow:
+        0 0 9px rgba(218, 174, 71, 0.45);
+}
+
+
+/* =========================================
+   SIGN IN BUTTON
+   ========================================= */
+
+.sign-in-btn {
+
+    height: 56px;
+
+    border: 1px solid rgba(221, 178, 77, 0.55);
+
+    background:
+        linear-gradient(
+            105deg,
+            #8d6728,
+            #d0a94f,
+            #8b6425
+        );
+
+    background-size: 200% 100%;
+
+    color: #120e08;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 15px;
+
+    font-family: "Font1", sans-serif;
+
+    font-size: 9px;
+
+    font-weight: 600;
+
+    letter-spacing: 2px;
+
+    cursor: pointer;
+
+    position: relative;
+
+    overflow: hidden;
+
+    transition:
+        transform 0.3s ease,
+        box-shadow 0.3s ease,
+        background-position 0.6s ease;
+}
+
+
+.sign-in-btn::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: -100%;
+
+    width: 60%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.35),
+            transparent
+        );
+
+    transform: skewX(-20deg);
+
+    transition: left 0.7s ease;
+}
+
+
+.sign-in-btn:hover {
+
+    transform: translateY(-2px);
+
+    background-position: 100% 0;
+
+    box-shadow:
+        0 8px 28px rgba(190, 140, 43, 0.22),
+        0 0 25px rgba(211, 168, 70, 0.10);
+}
+
+
+.sign-in-btn:hover::before {
+
+    left: 140%;
+}
+
+
+.sign-in-btn:active {
+
+    transform: translateY(0);
+}
+
+
+.arrow {
+
+    font-size: 18px;
+
+    line-height: 1;
+
+    transition: transform 0.3s ease;
+}
+
+
+.sign-in-btn:hover .arrow {
+
+    transform: translateX(5px);
+}
+
+
+/* =========================================
+   SECURITY NOTE
+   ========================================= */
+
+.security-note {
+
+    margin-top: 30px;
+
+    padding-top: 21px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 9px;
+}
+
+
+.security-icon {
+
+    color: #9c7734;
+
+    font-size: 12px;
+}
+
+
+.security-note p {
+
+    color: rgba(255, 255, 255, 0.32);
+
+    font-size: 9px;
+
+    letter-spacing: 0.5px;
+}
+
+
+/* =========================================
+   FOOTER
+   ========================================= */
+
+.login-footer {
+
+    margin-top: 25px;
+
+    font-size: 8px;
+
+    letter-spacing: 2px;
+
+    color: rgba(255, 255, 255, 0.20);
+
+    text-align: center;
+}
+
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 550px) {
+
+    .login-page {
+
+        padding: 30px 16px;
+    }
+
+    .login-card {
+
+        padding: 38px 25px 30px;
+    }
+
+    .login-heading h1 {
+
+        font-size: 36px;
+    }
+
+    .login-logo {
+
+        width: 82px;
+
+        margin-bottom: 20px;
+    }
+}

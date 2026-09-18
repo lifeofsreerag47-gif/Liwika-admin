@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Liwi-Ka | Admin Login</title>
+
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+
+    <!-- Background decoration -->
+    <div class="gold-orb orb-one"></div>
+    <div class="gold-orb orb-two"></div>
+
+    <main class="login-page">
+
+        <!-- Small Liwi-Ka Logo -->
+        <a href="#" class="login-logo">
+            <img src="images/liwi.png" alt="Liwi-Ka">
+        </a>
+
+
+        <!-- Login Card -->
+        <section class="login-card">
+
+            <div class="card-top-line"></div>
+
+            <div class="login-heading">
+                <p class="eyebrow">ADMIN CONTROL CENTER</p>
+
+                <h1>Welcome Back</h1>
+
+                <p class="login-subtitle">
+                    Sign in to manage your Liwi-Ka store.
+                </p>
+            </div>
+
+
+            <form class="login-form">
+
+                <!-- Username -->
+                <div class="input-group">
+
+                    <label for="username">
+                        ADMINISTRATOR
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-icon">◈</span>
+
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Enter administrator ID"
+                            autocomplete="username"
+                            required
+                        >
+
+                    </div>
+
+                </div>
+
+
+                <!-- Password -->
+                <div class="input-group">
+
+                    <label for="password">
+                        PASSWORD
+                    </label>
+
+                    <div class="input-wrapper password-wrapper">
+
+                        <span class="input-icon">◇</span>
+
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+
+                        <!-- View Password Button -->
+                        <button
+                            type="button"
+                            class="view-password"
+                            id="viewPassword"
+                            aria-label="View password"
+                        >
+                            VIEW
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Login Options -->
+                <div class="login-options">
+
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember">
+                        <span class="custom-checkbox"></span>
+                        Remember me
+                    </label>
+
+                    <a href="#" class="forgot-password">
+                        Forgot password?
+                    </a>
+
+                </div>
+
+
+                <!-- Sign In -->
+                <button type="submit" class="sign-in-btn">
+
+                    <span>ENTER CONTROL CENTER</span>
+
+                    <span class="arrow">→</span>
+
+                </button>
+
+            </form>
+
+
+            <!-- Security Notice -->
+            <div class="security-note">
+
+                <span class="security-icon">◇</span>
+
+                <p>
+                    Authorized Liwi-Ka administrators only.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- Bottom text -->
+        <footer class="login-footer">
+            LIWI-KA &nbsp; • &nbsp; CONTROL CENTER &nbsp; • &nbsp; SECURE ACCESS
+        </footer>
+
+    </main>
+
+
+    <script src="login.js"></script>
+
+</body>
+</html>
