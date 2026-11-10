@@ -12,3 +12,5 @@ The admin is redesigned in the premium cacao-black/champagne-gold visual directi
 Deploy backend rules, indexes and Functions before publishing. Use `grant-admin-claim.cjs` from the backend package to grant the custom admin claim. See the backend deployment guide.
 
 **Payment note:** online payment gateway processing is not included; do not mark an order paid until payment has been verified independently.
+
+Product editor note: nutrition values are stored in the product document under `nutrition` (energy, fat, saturatedFat, carbohydrates, sugars, protein), and ingredients are stored in `ingredients`. Values are displayed in the customer product window as entered; enter label values and units accurately.

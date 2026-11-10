@@ -144,6 +144,14 @@ async function renderProductForm() {
     <div class="field"><label class="field-label">BADGE</label><input class="field-input" name="badge" value="${esc(p.badge||'')}" placeholder="BESTSELLER, NEW…"></div>
     <div class="field full"><label class="field-label">PRODUCT IMAGE ${id?'(OPTIONAL — UPLOAD TO REPLACE)':'*'}</label><label class="image-drop ${p.imageUrl?'has-image':''}" id="imageDrop">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="Current product image">`:`<span class="upload-copy"><strong>＋ ADD PRODUCT IMAGE</strong><span>Choose or drop a JPG, PNG, WEBP or AVIF image · Max 8 MB</span></span>`}<input id="productImageFile" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/avif"></label><div class="upload-progress"><span id="uploadProgress"></span></div><small class="field-hint">Images are stored in Firebase Storage. Removing a product also removes its stored image.</small></div>
     <div class="field full"><label class="field-label">DESCRIPTION</label><textarea class="field-textarea" name="description" placeholder="Describe this chocolate…">${esc(p.description||'')}</textarea></div>
+    <div class="field full"><div class="field-label">NUTRITIONAL INFORMATION · PER 100 G</div><small class="field-hint">Enter the values shown on your product label, including units where appropriate (for example, Sugar: 10 g).</small></div>
+    <div class="field"><label class="field-label">ENERGY</label><input class="field-input" name="nutritionEnergy" value="${esc(p.nutrition?.energy||'')}" placeholder="520 kcal"></div>
+    <div class="field"><label class="field-label">TOTAL FAT</label><input class="field-input" name="nutritionFat" value="${esc(p.nutrition?.fat||'')}" placeholder="32 g"></div>
+    <div class="field"><label class="field-label">SATURATED FAT</label><input class="field-input" name="nutritionSaturatedFat" value="${esc(p.nutrition?.saturatedFat||'')}" placeholder="20 g"></div>
+    <div class="field"><label class="field-label">CARBOHYDRATES</label><input class="field-input" name="nutritionCarbohydrates" value="${esc(p.nutrition?.carbohydrates||'')}" placeholder="52 g"></div>
+    <div class="field"><label class="field-label">SUGARS</label><input class="field-input" name="nutritionSugars" value="${esc(p.nutrition?.sugars||'')}" placeholder="10 g"></div>
+    <div class="field"><label class="field-label">PROTEIN</label><input class="field-input" name="nutritionProtein" value="${esc(p.nutrition?.protein||'')}" placeholder="7 g"></div>
+    <div class="field full"><label class="field-label">INGREDIENTS</label><textarea class="field-textarea" name="ingredients" placeholder="Cocoa solids, sugar, cocoa butter…">${esc(p.ingredients||'')}</textarea></div>
     <div class="field full"><label class="field-label">STOREFRONT PLACEMENTS</label><div class="collection-grid">${placements.map(([v,l])=>`<label class="collection-card" style="display:flex;align-items:center;gap:10px;padding:11px"><input type="checkbox" name="placements" value="${v}" ${(p.placements||['shop']).includes(v)?'checked':''}><span style="font-size:9px">${l}</span></label>`).join('')}</div></div>
     <div class="field"><label class="field-label">PUBLISH STATUS</label><select class="field-select" name="published"><option value="true" ${(p.isPublished!==false)?'selected':''}>Published</option><option value="false" ${p.isPublished===false?'selected':''}>Draft</option></select></div>
     <div class="field"><label class="field-label">STOREFRONT VISIBILITY</label><select class="field-select" name="visible"><option value="true" ${p.isVisible!==false?'selected':''}>Visible</option><option value="false" ${p.isVisible===false?'selected':''}>Hidden</option></select></div>
@@ -159,7 +167,15 @@ async function renderProductForm() {
       let oldImageToDelete='';
       const placements=data.getAll('placements');
       const flavours=String(data.get('flavours')||'Classic').split(',').map(v=>v.trim()).filter(Boolean).slice(0,20);
-      const payload={name:String(data.get('name')).trim(),category:String(data.get('category')).trim(),price:Number(data.get('price')),flavour:flavours[0]||'Classic',flavours,stock:Number(data.get('stock')),badge:String(data.get('badge')||'').trim(),description:String(data.get('description')||'').trim(),placements,isPublished:data.get('published')==='true',isVisible:data.get('visible')==='true',newArrival:data.get('newArrival')==='true',sortOrder:Number(data.get('sortOrder'))||Date.now(),updatedAt:serverTimestamp()};
+      const nutrition = {
+        energy: String(data.get('nutritionEnergy') || '').trim(),
+        fat: String(data.get('nutritionFat') || '').trim(),
+        saturatedFat: String(data.get('nutritionSaturatedFat') || '').trim(),
+        carbohydrates: String(data.get('nutritionCarbohydrates') || '').trim(),
+        sugars: String(data.get('nutritionSugars') || '').trim(),
+        protein: String(data.get('nutritionProtein') || '').trim()
+      };
+      const payload={name:String(data.get('name')).trim(),category:String(data.get('category')).trim(),price:Number(data.get('price')),flavour:flavours[0]||'Classic',flavours,stock:Number(data.get('stock')),badge:String(data.get('badge')||'').trim(),description:String(data.get('description')||'').trim(),nutrition,ingredients:String(data.get('ingredients')||'').trim(),placements,isPublished:data.get('published')==='true',isVisible:data.get('visible')==='true',newArrival:data.get('newArrival')==='true',sortOrder:Number(data.get('sortOrder'))||Date.now(),updatedAt:serverTimestamp()};
       let productId=id;
       if(!productId){const newDoc=doc(collection(db,'products')); productId=newDoc.id;}
       if(file){const safeName=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-');const path=`products/${productId}/${Date.now()}-${safeName}`;const task=uploadBytesResumable(storageRef(storage,path),file,{contentType:file.type,cacheControl:'public,max-age=31536000'});await new Promise((resolve,reject)=>task.on('state_changed',s=>$('#uploadProgress').style.width=`${Math.round(100*s.bytesTransferred/s.totalBytes)}%`,reject,resolve));payload.imagePath=path;payload.imageUrl=await getDownloadURL(storageRef(storage,path));if(p.imagePath)oldImageToDelete=p.imagePath;}
