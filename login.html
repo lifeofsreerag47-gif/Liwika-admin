@@ -1,157 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Liwi-Ka | Admin Login</title>
-
-    <link rel="stylesheet" href="login.css">
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090908"><title>Liwi-Ka | Secure Admin Access</title>
+  <link rel="stylesheet" href="admin.css">
 </head>
-
-<body>
-
-    <!-- Background decoration -->
-    <div class="gold-orb orb-one"></div>
-    <div class="gold-orb orb-two"></div>
-
-    <main class="login-page">
-
-        <!-- Small Liwi-Ka Logo -->
-        <a href="#" class="login-logo">
-            <img src="images/liwi.png" alt="Liwi-Ka">
-        </a>
-
-
-        <!-- Login Card -->
-        <section class="login-card">
-
-            <div class="card-top-line"></div>
-
-            <div class="login-heading">
-                <p class="eyebrow">ADMIN CONTROL CENTER</p>
-
-                <h1>Welcome Back</h1>
-
-                <p class="login-subtitle">
-                    Sign in to manage your Liwi-Ka store.
-                </p>
-            </div>
-
-
-            <form class="login-form">
-
-                <!-- Username -->
-                <div class="input-group">
-
-                    <label for="username">
-                        ADMINISTRATOR
-                    </label>
-
-                    <div class="input-wrapper">
-
-                        <span class="input-icon">◈</span>
-
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            placeholder="Enter administrator ID"
-                            autocomplete="username"
-                            required
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <!-- Password -->
-                <div class="input-group">
-
-                    <label for="password">
-                        PASSWORD
-                    </label>
-
-                    <div class="input-wrapper password-wrapper">
-
-                        <span class="input-icon">◇</span>
-
-                        <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="Enter your password"
-                            autocomplete="current-password"
-                            required
-                        >
-
-                        <!-- View Password Button -->
-                        <button
-                            type="button"
-                            class="view-password"
-                            id="viewPassword"
-                            aria-label="View password"
-                        >
-                            VIEW
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <!-- Login Options -->
-                <div class="login-options">
-
-                    <label class="remember-me">
-                        <input type="checkbox" id="remember">
-                        <span class="custom-checkbox"></span>
-                        Remember me
-                    </label>
-
-                    <a href="#" class="forgot-password">
-                        Forgot password?
-                    </a>
-
-                </div>
-
-
-                <!-- Sign In -->
-                <button type="submit" class="sign-in-btn">
-
-                    <span>ENTER CONTROL CENTER</span>
-
-                    <span class="arrow">→</span>
-
-                </button>
-
-            </form>
-
-
-            <!-- Security Notice -->
-            <div class="security-note">
-
-                <span class="security-icon">◇</span>
-
-                <p>
-                    Authorized Liwi-Ka administrators only.
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- Bottom text -->
-        <footer class="login-footer">
-            LIWI-KA &nbsp; • &nbsp; CONTROL CENTER &nbsp; • &nbsp; SECURE ACCESS
-        </footer>
-
-    </main>
-
-
-    <script src="login.js"></script>
-
-</body>
-</html>
+<body class="login-body">
+  <div class="login-glow login-glow-a"></div><div class="login-glow login-glow-b"></div>
+  <main class="login-wrap">
+    <a class="brand login-brand" href="#"><img src="images/liwi.png" alt="Liwi-Ka"><span>LIWI-KA<small>ADMIN CONTROL</small></span></a>
+    <section class="login-panel">
+      <p class="eyebrow">SECURE ADMINISTRATOR ACCESS</p>
+      <h1>Welcome back.</h1>
+      <p class="muted">Sign in using an approved Google account or your administrator phone number.</p>
+      <button id="googleSignIn" class="auth-provider" type="button"><span class="google-mark">G</span> Continue with Google</button>
+      <div class="or-line"><span>OR USE PHONE OTP</span></div>
+      <form id="phoneForm" novalidate>
+        <label class="field-label" for="adminPhone">MOBILE NUMBER</label>
+        <div class="phone-row"><span>+91</span><input id="adminPhone" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="10-digit mobile number" required></div>
+        <div id="recaptcha-container"></div>
+        <button id="sendOtp" class="gold-btn wide" type="button">SEND VERIFICATION CODE</button>
+        <div id="otpArea" hidden><label class="field-label" for="adminOtp">VERIFICATION CODE</label><input class="form-input" id="adminOtp" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="Enter 6-digit OTP"><button class="gold-btn wide" id="verifyOtp" type="submit">VERIFY & ENTER</button></div>
+      </form>
+      <div class="auth-message" id="authMessage" role="status" aria-live="polite"></div>
+      <div class="security-note"><span>◇</span><p>Administrator access is checked by Firebase custom claims. Signing in alone does not grant store permissions.</p></div>
+    </section>
+    <footer>LIWI-KA · CONTROL CENTER · AUTHORIZED ACCESS ONLY</footer>
+  </main>
+  <script type="module" src="login-app.js"></script>
+</body></html>
