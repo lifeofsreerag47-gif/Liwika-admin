@@ -133,8 +133,16 @@ async function renderProductForm() {
   const p = old?.data() || {};
   const placements = [...PLACEMENTS];
   storedCollections.filter(c=>c.isActive!==false && c.slug && !placements.some(x=>x[0]===c.slug)).forEach(c=>placements.push([c.slug,c.name||c.slug]));
-  const flavourValues = Array.isArray(p.flavours) && p.flavours.length ? p.flavours.join(', ') : (p.flavour || 'Classic');
-  root.innerHTML = pageHeader(id?'Edit product':'Add product',id?'Update the product details and storefront placement.':'Create a product in Firebase and upload its image to Firebase Storage.',`<a class="btn" href="all-products.html">← ALL PRODUCTS</a>`) +
+  const flavourValues = Array.isArray(p.flavours) && p.flavours.length ? p.flavours.map(v=>typeof v==='string'?v:(v?.name||'')).filter(Boolean).join(', ') : (p.flavour || 'Classic');
+  const storedGallery = Array.isArray(p.images) ? p.images : (Array.isArray(p.imageUrls) ? p.imageUrls : []);
+  const existingImages = storedGallery.map((item,index) => ({
+    url: typeof item === 'string' ? item : (item?.url || item?.imageUrl || item?.downloadURL || ''),
+    path: (typeof item === 'object' && item?.path) || p.imagePaths?.[index] || (index === 0 ? p.imagePath : '') || ''
+  })).filter(item=>item.url);
+  if (!existingImages.length && p.imageUrl) existingImages.push({url:p.imageUrl,path:p.imagePath||''});
+  let selectedFiles = [];
+  const removedExisting = new Set();
+  root.innerHTML = pageHeader(id?'Edit product':'Add product',id?'Update the product details and storefront placement.':'Create a product in Firebase and upload its images to Firebase Storage.',`<a class="btn" href="all-products.html">← ALL PRODUCTS</a>`) +
   `<form id="productForm" class="panel" style="padding:20px"><div class="form-grid">
     <div class="field"><label class="field-label">PRODUCT NAME *</label><input class="field-input" name="name" required maxlength="100" value="${esc(p.name||'')}" placeholder="e.g. Cocoa Noir"></div>
     <div class="field"><label class="field-label">CATEGORY *</label><input class="field-input" name="category" required value="${esc(p.category||'')}" placeholder="Dark chocolate, gift box…"></div>
@@ -142,7 +150,7 @@ async function renderProductForm() {
     <div class="field"><label class="field-label">FLAVOURS</label><input class="field-input" name="flavours" value="${esc(flavourValues)}" placeholder="Classic, orange, hazelnut…"><small class="field-hint">Separate options with commas. Customers can choose in the product quick view.</small></div>
     <div class="field"><label class="field-label">STOCK QUANTITY *</label><input class="field-input" name="stock" type="number" min="0" step="1" required value="${esc(p.stock??0)}"></div>
     <div class="field"><label class="field-label">BADGE</label><input class="field-input" name="badge" value="${esc(p.badge||'')}" placeholder="BESTSELLER, NEW…"></div>
-    <div class="field full"><label class="field-label">PRODUCT IMAGE ${id?'(OPTIONAL — UPLOAD TO REPLACE)':'*'}</label><label class="image-drop ${p.imageUrl?'has-image':''}" id="imageDrop">${p.imageUrl?`<img src="${esc(p.imageUrl)}" alt="Current product image">`:`<span class="upload-copy"><strong>＋ ADD PRODUCT IMAGE</strong><span>Choose or drop a JPG, PNG, WEBP or AVIF image · Max 8 MB</span></span>`}<input id="productImageFile" name="image" type="file" accept="image/jpeg,image/png,image/webp,image/avif"></label><div class="upload-progress"><span id="uploadProgress"></span></div><small class="field-hint">Images are stored in Firebase Storage. Removing a product also removes its stored image.</small></div>
+    <div class="field full"><label class="field-label">PRODUCT IMAGES ${id?'(ADD MORE OR REMOVE EXISTING)':'*'}</label><label class="image-drop" id="imageDrop"><span class="upload-copy"><strong>＋ ADD PRODUCT IMAGES</strong><span>Select multiple JPG, PNG, WEBP or AVIF images · Maximum 8 MB each</span></span><input id="productImageFiles" name="images" type="file" multiple accept="image/jpeg,image/png,image/webp,image/avif"></label><div class="image-preview-grid" id="productImagePreview" aria-live="polite"></div><div class="upload-progress"><span id="uploadProgress"></span></div><small class="field-hint">The first image is the main cover. Add more images at any time; remove individual previews with ×. Customers can swipe, use arrows, or select thumbnails.</small></div>
     <div class="field full"><label class="field-label">DESCRIPTION</label><textarea class="field-textarea" name="description" placeholder="Describe this chocolate…">${esc(p.description||'')}</textarea></div>
     <div class="field full"><div class="field-label">NUTRITIONAL INFORMATION · PER 100 G</div><small class="field-hint">Enter the values shown on your product label, including units where appropriate (for example, Sugar: 10 g).</small></div>
     <div class="field"><label class="field-label">ENERGY</label><input class="field-input" name="nutritionEnergy" value="${esc(p.nutrition?.energy||'')}" placeholder="520 kcal"></div>
@@ -158,13 +166,57 @@ async function renderProductForm() {
     <div class="field"><label class="field-label">NEW ARRIVAL</label><select class="field-select" name="newArrival"><option value="false" ${!p.newArrival?'selected':''}>No</option><option value="true" ${p.newArrival?'selected':''}>Yes</option></select></div>
     <div class="field"><label class="field-label">DISPLAY ORDER</label><input class="field-input" name="sortOrder" type="number" step="1" value="${esc(p.sortOrder??Date.now())}"></div>
   </div><div class="form-actions"><a class="btn" href="all-products.html">CANCEL</a><button class="btn btn-primary" type="submit">${id?'SAVE CHANGES':'SAVE PRODUCT'}</button></div></form>`;
+
+  const imageInput = $('#productImageFiles');
+  const preview = $('#productImagePreview');
+  const drop = $('#imageDrop');
+  const safeImageTypes = new Set(['image/jpeg','image/png','image/webp','image/avif']);
+  function renderImagePreviews() {
+    preview.innerHTML = '';
+    const entries = [
+      ...existingImages.map((item,index)=>({kind:'existing',key:String(index),url:item.url,label:index===0?'Stored cover':'Stored image'})).filter(item=>!removedExisting.has(item.key)),
+      ...selectedFiles.map(item=>({kind:'new',key:item.key,url:item.previewUrl,label:'New image'}))
+    ];
+    if (!entries.length) {
+      preview.innerHTML = '<div class="image-preview-empty">No product images selected yet.</div>';
+      return;
+    }
+    entries.forEach((item,index)=>{
+      const tile=document.createElement('div'); tile.className='image-preview-tile';
+      const image=document.createElement('img'); image.src=item.url; image.alt=`Product image ${index+1}`; image.loading='eager';
+      const meta=document.createElement('span'); meta.className='image-preview-meta'; meta.textContent=index===0?'MAIN IMAGE':item.label.toUpperCase();
+      const remove=document.createElement('button'); remove.type='button'; remove.className='image-preview-remove'; remove.textContent='×'; remove.setAttribute('aria-label','Remove image');
+      remove.addEventListener('click',()=>{
+        if(item.kind==='existing') removedExisting.add(item.key);
+        else { const found=selectedFiles.find(x=>x.key===item.key); if(found) URL.revokeObjectURL(found.previewUrl); selectedFiles=selectedFiles.filter(x=>x.key!==item.key); }
+        renderImagePreviews();
+      });
+      tile.append(image,meta,remove); preview.appendChild(tile);
+    });
+  }
+  function addImageFiles(fileList) {
+    Array.from(fileList||[]).forEach(file=>{
+      if(!safeImageTypes.has(file.type)){toast(`${file.name}: use JPG, PNG, WEBP or AVIF.`,true);return;}
+      if(file.size>8*1024*1024){toast(`${file.name}: image must be 8 MB or smaller.`,true);return;}
+      selectedFiles.push({key:`${Date.now()}-${Math.random().toString(36).slice(2)}`,file,previewUrl:URL.createObjectURL(file)});
+    });
+    renderImagePreviews();
+  }
+  imageInput.addEventListener('change',()=>{addImageFiles(imageInput.files);imageInput.value='';});
+  drop.addEventListener('dragover',event=>{event.preventDefault();drop.classList.add('is-dragover');});
+  drop.addEventListener('dragleave',()=>drop.classList.remove('is-dragover'));
+  drop.addEventListener('drop',event=>{event.preventDefault();drop.classList.remove('is-dragover');addImageFiles(event.dataTransfer?.files);});
+  renderImagePreviews();
+
   $('#productForm').addEventListener('submit', async (e)=>{
-    e.preventDefault(); const form=e.currentTarget; const data=new FormData(form); const file=$('#productImageFile').files[0];
-    if(!id && !file){toast('Please add a product image.',true);return;}
-    if(file && file.size>=8*1024*1024){toast('Image must be 8 MB or smaller.',true);return;}
+    e.preventDefault(); const form=e.currentTarget; const data=new FormData(form);
+    const retainedImages=existingImages.filter((_,index)=>!removedExisting.has(String(index)));
+    if(!id && !retainedImages.length && !selectedFiles.length){toast('Please add at least one product image.',true);return;}
+    if(retainedImages.length+selectedFiles.length===0){toast('A product must have at least one image.',true);return;}
     const submit=$('button[type="submit"]',form); submit.disabled=true; submit.textContent='SAVING…';
+    let newlyUploadedPaths=[];
+    let productSaved=false;
     try {
-      let oldImageToDelete='';
       const placements=data.getAll('placements');
       const flavours=String(data.get('flavours')||'Classic').split(',').map(v=>v.trim()).filter(Boolean).slice(0,20);
       const nutrition = {
@@ -178,14 +230,36 @@ async function renderProductForm() {
       const payload={name:String(data.get('name')).trim(),category:String(data.get('category')).trim(),price:Number(data.get('price')),flavour:flavours[0]||'Classic',flavours,stock:Number(data.get('stock')),badge:String(data.get('badge')||'').trim(),description:String(data.get('description')||'').trim(),nutrition,ingredients:String(data.get('ingredients')||'').trim(),placements,isPublished:data.get('published')==='true',isVisible:data.get('visible')==='true',newArrival:data.get('newArrival')==='true',sortOrder:Number(data.get('sortOrder'))||Date.now(),updatedAt:serverTimestamp()};
       let productId=id;
       if(!productId){const newDoc=doc(collection(db,'products')); productId=newDoc.id;}
-      if(file){const safeName=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-');const path=`products/${productId}/${Date.now()}-${safeName}`;const task=uploadBytesResumable(storageRef(storage,path),file,{contentType:file.type,cacheControl:'public,max-age=31536000'});await new Promise((resolve,reject)=>task.on('state_changed',s=>$('#uploadProgress').style.width=`${Math.round(100*s.bytesTransferred/s.totalBytes)}%`,reject,resolve));payload.imagePath=path;payload.imageUrl=await getDownloadURL(storageRef(storage,path));if(p.imagePath)oldImageToDelete=p.imagePath;}
-      else if(id){payload.imagePath=p.imagePath||'';payload.imageUrl=p.imageUrl||'';}
+      let gallery=retainedImages.map(item=>({url:item.url,path:item.path||''}));
+      newlyUploadedPaths=[];
+      const totalBytes=selectedFiles.reduce((sum,item)=>sum+item.file.size,0); let completedBytes=0;
+      for(const selected of selectedFiles){
+        const file=selected.file; const safeName=file.name.toLowerCase().replace(/[^a-z0-9._-]+/g,'-');
+        const path=`products/${productId}/${Date.now()}-${Math.random().toString(36).slice(2,7)}-${safeName}`;
+        const task=uploadBytesResumable(storageRef(storage,path),file,{contentType:file.type,cacheControl:'public,max-age=31536000'});
+        await new Promise((resolve,reject)=>task.on('state_changed',snapshot=>{
+          const percent=totalBytes?Math.round(((completedBytes+snapshot.bytesTransferred)/totalBytes)*100):0;
+          $('#uploadProgress').style.width=`${percent}%`;
+        },reject,resolve));
+        completedBytes+=file.size;
+        newlyUploadedPaths.push(path);
+        gallery.push({url:await getDownloadURL(storageRef(storage,path)),path});
+      }
+      payload.images=gallery;
+      payload.imageUrls=gallery.map(item=>item.url);
+      payload.imagePaths=gallery.map(item=>item.path).filter(Boolean);
+      payload.imageUrl=gallery[0]?.url||'';
+      payload.imagePath=gallery[0]?.path||'';
       payload.createdAt=p.createdAt||serverTimestamp();
       await setDoc(doc(db,'products',productId),payload,{merge:true});
-      if(oldImageToDelete) await removeStorageFile(oldImageToDelete).catch(error=>console.warn('Old product image could not be removed:',error));
-      await addLog(id?'Updated product':'Created product','product',productId,{summary:payload.name});
+      productSaved=true;
+      const removedPaths=existingImages.filter((_,index)=>removedExisting.has(String(index))).map(item=>item.path).filter(Boolean);
+      await Promise.all(removedPaths.map(path=>removeStorageFile(path).catch(error=>console.warn('Removed image could not be deleted:',error))));
+      selectedFiles.forEach(item=>URL.revokeObjectURL(item.previewUrl));
+      try { await addLog(id?'Updated product':'Created product','product',productId,{summary:`${payload.name} · ${gallery.length} images`}); }
+      catch(logError) { console.warn('Product saved, but the activity log could not be written:', logError); }
       toast(id?'Product updated':'Product created'); location.href='all-products.html';
-    } catch(error){console.error(error);toast(error.message||'Could not save the product.',true);submit.disabled=false;submit.textContent=id?'SAVE CHANGES':'SAVE PRODUCT';}
+    } catch(error){console.error(error);toast(error.message||'Could not save the product.',true);submit.disabled=false;submit.textContent=id?'SAVE CHANGES':'SAVE PRODUCT'; if(!productSaved) await Promise.all(newlyUploadedPaths.map(path=>removeStorageFile(path).catch(()=>{})));}
   });
 }
 
@@ -197,8 +271,8 @@ async function removeStorageFile(path) {
 async function removeProduct(p) {
   if(!confirm(`Permanently remove “${p.name}” and its stored image? This cannot be undone from the admin panel.`)) return;
   try {
-    if(p.imagePath) await removeStorageFile(p.imagePath);
-    if(Array.isArray(p.imagePaths)) await Promise.all(p.imagePaths.map(removeStorageFile));
+    const paths = new Set([p.imagePath, ...(Array.isArray(p.imagePaths)?p.imagePaths:[]), ...(Array.isArray(p.images)?p.images.map(item=>typeof item==='string'?'':(item?.path||'')):[])].filter(Boolean));
+    await Promise.all([...paths].map(removeStorageFile));
     await deleteDoc(doc(db,'products',p.id));
     await addLog('Deleted product','product',p.id,{summary:p.name});
     toast('Product and linked image removed'); await renderProducts(page==='visibility'?'visibility':'products');
